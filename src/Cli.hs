@@ -12,7 +12,7 @@ import System.Console.CmdArgs
 data ProgramInput = ProgramInput {
     step :: Double,
     window :: Int,
-    method :: String} deriving (Show, Data, Typeable)
+    method :: [String]} deriving (Show, Data, Typeable)
 
 pInput :: ProgramInput
 pInput = ProgramInput {
@@ -21,7 +21,7 @@ pInput = ProgramInput {
     method = def &= help "Interpolation method"
 }
 
-parseInput :: IO (Double, Int, String)
+parseInput :: IO (Double, Int, [String])
 parseInput = do
     input <- cmdArgs pInput
     let (ProgramInput step window method) = input
@@ -44,13 +44,14 @@ handler _ = return Nothing
 
 --------------------------------------------------------------------------------
 
-writePoints :: [Double] -> [Double] -> IO()
-writePoints a b
+writePoints :: String -> [Double] -> [Double] -> IO()
+writePoints method a b
     | null a = putStr ""
     | otherwise = do
-        putStr "x: "
+        putStr method
+        putStr ": x: "
         printf "%.3f" (head a)
         putStr "; y: "
         printf "%.3f" (head b)
         putStr "\n"
-        writePoints (tail a) (tail b)
+        writePoints method (tail a) (tail b)

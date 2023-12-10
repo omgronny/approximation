@@ -10,6 +10,7 @@ library
         Approximation
         Cli
         Runner
+        Generator
 
     hs-source-dirs:   src
     other-modules:    Paths_approximation

@@ -4,13 +4,15 @@ import Cli(readPoint, writePoints)
 
 import Approximation(linearInterpolation, lagrangiaInterpolation)
 
+import Generator(generatePointsFromBegin, generatePointsToEnd)
+
 --------------------------------------------------------------------------------
 
-interpolate :: Int -> Double -> String -> IO()
-interpolate windowSize freq method = run windowSize freq method [] [] True
+interpolate :: Int -> Double -> [String] -> IO()
+interpolate windowSize freq methods = run windowSize freq methods [] [] True
 
-run :: Int -> Double -> String -> [Double] -> [Double] -> Bool -> IO()
-run windowSize freq method windowX windowY inBegin = do
+run :: Int -> Double -> [String] -> [Double] -> [Double] -> Bool -> IO()
+run windowSize freq methods windowX windowY inBegin = do
     print $ "next value:"
 
     inp <- readPoint
@@ -18,8 +20,8 @@ run windowSize freq method windowX windowY inBegin = do
         Just (pointX, pointY) -> doRun (windowX ++ [pointX]) (windowY ++ [pointY]) pointX
         Nothing -> do
             print $ "end of input"
-            let pointsToPredict = generatePointsToEnd (head windowX) (windowX!!(length windowX - 1)) 0.1
-            interpolateAndPrint windowX windowY pointsToPredict
+            let pointsToPredict = generatePointsToEnd (head windowX) (windowX!!(length windowX - 1)) freq
+            interpolateAndPrint methods windowX windowY pointsToPredict
 
     where
         doRun :: [Double] -> [Double] -> Double -> IO()
@@ -30,37 +32,24 @@ run windowSize freq method windowX windowY inBegin = do
                         generatePointsFromBegin (head windowX') pointX freq
                     else
                         []
-                interpolateAndPrint windowX' windowY' pointsToPredict
+                interpolateAndPrint methods windowX' windowY' pointsToPredict
 
-                run windowSize freq method windowX' windowY' inBegin
+                run windowSize freq methods windowX' windowY' inBegin
 
             | otherwise = do
-                let pointsToPredict = [((head windowX') + pointX) / 2]
-                interpolateAndPrint windowX' windowY' pointsToPredict
+                let pointsToPredict = [(head windowX' + pointX) / 2]
+                interpolateAndPrint methods windowX' windowY' pointsToPredict
 
-                run windowSize freq method (tail windowX') (tail windowY') False
+                run windowSize freq methods (tail windowX') (tail windowY') False
 
-        interpolateAndPrint :: [Double] -> [Double] -> [Double] -> IO()
-        interpolateAndPrint windowX' windowY' pointsToPredict = do
-            let result = getMethod windowX' windowY' pointsToPredict
-            writePoints pointsToPredict result
+        interpolateAndPrint :: [String] -> [Double] -> [Double] -> [Double] -> IO()
+        interpolateAndPrint [] _ _ _ = putStr ""
+        interpolateAndPrint (hMethod:tMethods) windowX' windowY' pointsToPredict = do
+            let result = getMethod hMethod windowX' windowY' pointsToPredict
+            writePoints hMethod pointsToPredict result
+            interpolateAndPrint tMethods windowX' windowY' pointsToPredict
 
-        generatePointsFromBegin :: Double -> Double -> Double -> [Double]
-        generatePointsFromBegin from to step
-            | from == to = []
-            | otherwise = doGeneratePoints from ((from + to) / 2) step [from + step]
-
-        generatePointsToEnd :: Double -> Double -> Double -> [Double]
-        generatePointsToEnd from to step
-            | from == to = []
-            | otherwise = doGeneratePoints ((from + to) / 2) to step [from + step]
-
-        doGeneratePoints :: Double -> Double -> Double -> [Double] -> [Double]
-        doGeneratePoints h t step acc
-            | (head acc) + step >= t = reverse acc
-            | otherwise = doGeneratePoints h t step ((head acc + step) : acc)
-
-        getMethod
+        getMethod method
             | method == "lagrangia" = lagrangiaInterpolation
             | otherwise = linearInterpolation
 
