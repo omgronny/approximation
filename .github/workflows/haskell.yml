@@ -50,4 +50,4 @@ jobs:
         pattern: |
           */*.hs
     - name: Run tests
-      run: cabal test all --test-show-details=always
+      run: .github/workflows/runtests

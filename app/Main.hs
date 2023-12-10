@@ -1,12 +1,11 @@
 module Main (main) where
 
-import Runner(interpolate)
-
-import Cli(parseInput)
+import Cli (parseInput)
+import Runner (interpolate)
 
 -- cabal run approximation-exe --verbose=0
 
-main :: IO()
-main =  do
-    (step, window, method) <- parseInput
-    interpolate window step method
+main :: IO ()
+main = do
+  (step, window, method) <- parseInput
+  interpolate window step method
