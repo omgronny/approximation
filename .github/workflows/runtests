@@ -1,3 +1,4 @@
 cabal test all --test-show-details=always
 cabal build
+ln -s dist-newstyle/build/x86_64-linux/ghc-9.8.1/approximation-0.1.0.0/x/approximation-exe/build/approximation-exe/approximation-exe interpolate
 python3 test/test.py
