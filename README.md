@@ -100,4 +100,40 @@ run windowSize freq methods windowX windowY inBegin = do
       interpolateAndPrint tMethods windowX' windowY' pointsToPredict
 ```
 
+## Вывод программы
 
+```bash
+$ cat test/data/test1 | ./interpolate  --step=0.5 --window=3 --method=linear
+linear: x: 0.500; y: 2.500
+linear: x: 1.000; y: 3.000
+linear: x: 1.500; y: 3.500
+linear: x: 2.500; y: 9.250
+linear: x: 3.000; y: 14.500
+linear: x: 3.500; y: 19.750
+```
+
+```bash
+$ cat test/data/test1 | ./interpolate  --step=0.5 --window=3 --method=lagrangia
+lagrangia: x: 0.500; y: 0.719
+lagrangia: x: 1.000; y: 0.625
+lagrangia: x: 1.500; y: 1.719
+lagrangia: x: 2.500; y: 9.250
+lagrangia: x: 3.000; y: 14.500
+lagrangia: x: 3.500; y: 19.750
+```
+
+```bash
+$ cat test/data/test1 | ./interpolate  --step=0.5 --window=3 --method=lagrangia --method=linear
+lagrangia: x: 0.500; y: 0.719
+lagrangia: x: 1.000; y: 0.625
+lagrangia: x: 1.500; y: 1.719
+linear: x: 0.500; y: 2.500
+linear: x: 1.000; y: 3.000
+linear: x: 1.500; y: 3.500
+lagrangia: x: 2.500; y: 9.250
+lagrangia: x: 3.000; y: 14.500
+lagrangia: x: 3.500; y: 19.750
+linear: x: 2.500; y: 9.250
+linear: x: 3.000; y: 14.500
+linear: x: 3.500; y: 19.750
+```
