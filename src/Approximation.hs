@@ -21,8 +21,8 @@ getIndexesForPoints inputX pointsToPredict =
   where
     doGetIndexesForPoints :: [Int] -> Int -> Int -> [Int]
     doGetIndexesForPoints indexes thisPredictIndex thisInputIndex
-      | thisPredictIndex == length pointsToPredict = indexes
-      | pointsToPredict !! thisPredictIndex <= inputX !! thisInputIndex = doGetIndexesForPoints (indexes ++ [thisInputIndex - 1]) (thisPredictIndex + 1) thisInputIndex
+      | thisPredictIndex == length pointsToPredict = reverse indexes
+      | pointsToPredict !! thisPredictIndex <= inputX !! thisInputIndex = doGetIndexesForPoints ((thisInputIndex - 1) : indexes) (thisPredictIndex + 1) thisInputIndex
       | otherwise = doGetIndexesForPoints indexes thisPredictIndex (thisInputIndex + 1)
 
 --------------------------------------------------------------------------------
