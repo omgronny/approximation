@@ -20,16 +20,12 @@ run windowSize freq methods windowX windowY inBegin = do
   where
     doRun :: [Double] -> [Double] -> Double -> IO ()
     doRun windowX' windowY' pointX
-      | length windowX' < windowSize = do
-          let pointsToPredict =
-                if and [inBegin, (length windowX' > 1)]
-                  then generatePointsFromBegin (head windowX') pointX freq
-                  else []
-          interpolateAndPrint methods windowX' windowY' pointsToPredict
-
-          run windowSize freq methods windowX' windowY' inBegin
+      | length windowX' < windowSize = run windowSize freq methods windowX' windowY' inBegin
       | otherwise = do
-          let pointsToPredict = [(head windowX' + pointX) / 2]
+          let pointsToPredict =
+                if inBegin
+                  then generatePointsFromBegin (head windowX') pointX freq
+                  else [(head windowX' + pointX) / 2]
           interpolateAndPrint methods windowX' windowY' pointsToPredict
 
           run windowSize freq methods (tail windowX') (tail windowY') False
