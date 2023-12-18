@@ -1,16 +1,16 @@
 module Generator (generatePointsFromBegin, generatePointsToEnd) where
 
-generatePointsFromBegin :: Double -> Double -> Double -> [Double]
+generatePointsFromBegin :: (Floating a) => (Ord a) => a -> a -> a -> [a]
 generatePointsFromBegin from to step
   | from == to = []
   | otherwise = doGeneratePoints from ((from + to) / 2) step [from + step]
 
-generatePointsToEnd :: Double -> Double -> Double -> [Double]
+generatePointsToEnd :: (Floating a) => (Ord a) => a -> a -> a -> [a]
 generatePointsToEnd from to step
   | from == to = []
   | otherwise = doGeneratePoints ((from + to) / 2) to step [from + step]
 
-doGeneratePoints :: Double -> Double -> Double -> [Double] -> [Double]
+doGeneratePoints :: (Floating a) => (Ord a) => a -> a -> a -> [a] -> [a]
 doGeneratePoints h t step acc
   | (head acc) + step >= t = reverse acc
   | otherwise = doGeneratePoints h t step ((head acc + step) : acc)

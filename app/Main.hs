@@ -5,5 +5,5 @@ import Runner (interpolate)
 
 main :: IO ()
 main = do
-  (step, window, method) <- parseInput
-  interpolate window step method
+  (step, window, methods) <- parseInput
+  interpolate window step methods

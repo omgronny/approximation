@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 
-module Cli (readPoint, writePoints, parseInput, ProgramInput) where
+module Cli (readPoint, writePoints, parseInput, ProgramInput, readPoints) where
 
 import Control.Exception
 import qualified Data.Text as T
@@ -29,6 +29,17 @@ parseInput = do
   input <- cmdArgs pInput
   let (ProgramInput step window method) = input
   return (step, window, method)
+
+--------------------------------------------------------------------------------
+
+readPoints :: IO [(Double, Double)]
+readPoints = do
+  inp <- readPoint
+  case inp of
+    Just pair -> do
+      list <- readPoints
+      return (pair : list)
+    Nothing -> return []
 
 --------------------------------------------------------------------------------
 

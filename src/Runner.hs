@@ -1,36 +1,35 @@
 module Runner (interpolate) where
 
 import Approximation (lagrangiaInterpolation, linearInterpolation)
-import Cli (readPoint, writePoints)
+import Cli (readPoints, writePoints)
 import Generator (generatePointsFromBegin, generatePointsToEnd)
 
 --------------------------------------------------------------------------------
 
 interpolate :: Int -> Double -> [String] -> IO ()
-interpolate windowSize freq methods = run windowSize freq methods [] [] True
-
-run :: Int -> Double -> [String] -> [Double] -> [Double] -> Bool -> IO ()
-run windowSize freq methods windowX windowY inBegin = do
-  inp <- readPoint
-  case inp of
-    Just (pointX, pointY) -> doRun (windowX ++ [pointX]) (windowY ++ [pointY]) pointX
-    Nothing -> do
-      let pointsToPredict = generatePointsToEnd (head windowX) (windowX !! (length windowX - 1)) freq
-      interpolateAndPrint methods windowX windowY pointsToPredict
+interpolate windowSize freq methods = do
+  inp <- readPoints
+  let (windowX, windowY) = unzip inp
+  startPoints (take windowSize windowX) (take windowSize windowY)
+  doRun windowX windowY
   where
-    doRun :: [Double] -> [Double] -> Double -> IO ()
-    doRun windowX' windowY' pointX
-      | length windowX' < windowSize = run windowSize freq methods windowX' windowY' inBegin
-      | otherwise = do
-          let pointsToPredict =
-                if inBegin
-                  then generatePointsFromBegin (head windowX') pointX freq
-                  else [(head windowX' + pointX) / 2]
+    doRun windowX windowY = do
+      let windowX' = (take windowSize $ windowX)
+      let windowY' = (take windowSize $ windowY)
+      let pointX = windowX' !! (length windowX' - 1)
+
+      if length windowX' < windowSize
+        then do
+          let pointsToPredict = generatePointsToEnd (head windowX') pointX freq
           interpolateAndPrint methods windowX' windowY' pointsToPredict
+        else do
+          interpolateAndPrint methods windowX' windowY' [(head windowX' + pointX) / 2]
+          doRun (tail windowX) (tail windowY)
 
-          run windowSize freq methods (tail windowX') (tail windowY') False
+    startPoints windowX windowY = do
+      let pointsToPredict = generatePointsFromBegin (head windowX) (windowX !! (length windowX - 1)) freq
+      interpolateAndPrint methods windowX windowY pointsToPredict
 
-    interpolateAndPrint :: [String] -> [Double] -> [Double] -> [Double] -> IO ()
     interpolateAndPrint [] _ _ _ = putStr ""
     interpolateAndPrint (hMethod : tMethods) windowX' windowY' pointsToPredict = do
       let result = getMethod hMethod windowX' windowY' pointsToPredict

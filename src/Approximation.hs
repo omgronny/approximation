@@ -2,20 +2,19 @@ module Approximation (linearInterpolation, getIndexesForPoints, lagrangiaInterpo
 
 --------------------------------------------------------------------------------
 
-linearInterpolation :: [Double] -> [Double] -> [Double] -> [Double]
+linearInterpolation :: (Floating a) => (Ord a) => [a] -> [a] -> [a] -> [a]
 linearInterpolation inputX inputY pointsToPredict = doLinearInterpolation inputX inputY pointsToPredict (getIndexesForPoints inputX pointsToPredict)
 
-doLinearInterpolation :: [Double] -> [Double] -> [Double] -> [Int] -> [Double]
+doLinearInterpolation :: (Floating a) => [a] -> [a] -> [a] -> [Int] -> [a]
 doLinearInterpolation inputX inputY pointsToPredict indexesForPointsToPredict =
   map predict (zip pointsToPredict indexesForPointsToPredict)
   where
-    predict :: (Double, Int) -> Double
     predict (point, index) = do
       let a = (inputY !! (index + 1) - inputY !! index) / (inputX !! (index + 1) - inputX !! (index))
       let b = inputY !! index - a * inputX !! index
       a * point + b
 
-getIndexesForPoints :: [Double] -> [Double] -> [Int]
+getIndexesForPoints :: (Ord a) => [a] -> [a] -> [Int]
 getIndexesForPoints inputX pointsToPredict =
   doGetIndexesForPoints [] 0 0
   where
@@ -27,19 +26,16 @@ getIndexesForPoints inputX pointsToPredict =
 
 --------------------------------------------------------------------------------
 
-lagrangiaInterpolation :: [Double] -> [Double] -> [Double] -> [Double]
+lagrangiaInterpolation :: (Floating a) => (Ord a) => [a] -> [a] -> [a] -> [a]
 lagrangiaInterpolation inputX inputY pointsToPredict =
   map predict pointsToPredict
   where
     -- L(x) = sum_i (yi * li(x))
-    predict :: Double -> Double
     predict x = sum (map (calcCoef x) (zip inputX inputY))
 
     -- li(x) = mul_j ( (x - xi) / (xi - xj) )
-    calcCoef :: Double -> (Double, Double) -> Double
     calcCoef x (inpX, inpY) = inpY * (foldl (foldSkip x inpX) 1 inputX) / (foldl (foldSkip inpX inpX) 1 inputX)
 
-    foldSkip :: Double -> Double -> Double -> Double -> Double
     foldSkip x forbid fl xi
       | forbid == xi = fl
       | otherwise = fl * (x - xi)
